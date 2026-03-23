@@ -3,10 +3,12 @@ import prisma from "../config/db";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const authCookieOptions = {
   httpOnly: true,
-  sameSite: "lax" as const,
-  secure: process.env.NODE_ENV === "production",
+  sameSite: (isProduction ? "none" : "lax") as "none" | "lax",
+  secure: isProduction,
   maxAge: 24 * 60 * 60 * 1000,
   path: "/",
 };
@@ -139,8 +141,8 @@ export const getCurrentUser = async (req: any, res: Response) => {
 export const logoutUser = async (_req: Request, res: Response) => {
   res.clearCookie("token", {
     httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    sameSite: isProduction ? "none" : "lax",
+    secure: isProduction,
     path: "/",
   });
 
